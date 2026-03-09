@@ -1,0 +1,33 @@
+import speech_recognition as sr
+import RPi.GPIO as GPIO
+import time
+
+# GPIO setup
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT)
+GPIO.setup(14, GPIO.OUT)
+
+def trigger_action(command):
+    if ("give me 1/4 tsp of salt") or ("give me 1/4 teaspoon of salt") in command.lower():
+        GPIO.output(18, GPIO.HIGH)
+        print("Dispening")
+        time.sleep(5) #wait for 1 second
+        GPIO.output(18, GPIO.LOW)
+        print("Salt is Ready!")
+    elif ("give me 1/4 tsp of pepper") or ("give me 1/4 teaspoon of pepper") in command.lower():
+        GPIO.output(14, GPIO.HIGH)
+        print("Dispening")
+        time.sleep(10) #wait for 1 second
+        GPIO.output(14, GPIO.LOW)
+        print("Pepper is Ready!")
+
+recognizer = sr.Recognizer()
+with sr.Microphone() as source:
+    print("Say a command...")
+    audio = recognizer.listen(source)
+    try:
+        cmd = recognizer.recognize_google(audio)
+        print("Command: {}".format(cmd))
+        trigger_action(cmd)
+    except sr.UnknownValueError:
+        print("Could not understand audio.")
