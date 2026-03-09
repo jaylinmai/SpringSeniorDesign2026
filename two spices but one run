@@ -32,8 +32,15 @@ def trigger_action(command):
         print("Pepper is Ready!")
         #say "Done"
 
-    else:
-        print("Command not recognized.")
+    else "exit" in command:
+        print("...")
+        sleep(1)
+        print("...")
+        sleep(1)
+        print("...")
+        sleep(1)
+        print("Goodbye")
+        break
 
 
 recognizer = sr.Recognizer()
