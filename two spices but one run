@@ -1,0 +1,65 @@
+import speech_recognition as sr
+import RPi.GPIO as GPIO
+import time
+
+# GPIO setup
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT)   # Salt
+GPIO.setup(14, GPIO.OUT)   # Pepper
+
+def trigger_action(command):
+
+    command = command.lower()
+
+    # SALT COMMANDS
+    if ("salt" in command) and ("quarter" in command or "1/4" in command or "one fourth" in command):
+
+        GPIO.output(18, GPIO.HIGH)
+        print("Dispensing Salt...")
+        time.sleep(5)
+        GPIO.output(18, GPIO.LOW)
+        print("Salt is Ready!")
+
+    # PEPPER COMMANDS
+    elif ("pepper" in command) and ("quarter" in command or "1/4" in command or "one fourth" in command):
+
+        GPIO.output(14, GPIO.HIGH)
+        print("Dispensing Pepper...")
+        time.sleep(10)
+        GPIO.output(14, GPIO.LOW)
+        print("Pepper is Ready!")
+
+    else:
+        print("Command not recognized.")
+
+
+recognizer = sr.Recognizer()
+
+with sr.Microphone(device_index=3) as source:
+
+    print("Calibrating microphone for background noise...")
+    recognizer.adjust_for_ambient_noise(source, duration=2)
+
+    print("System Ready. Say a command.")
+
+    while True:
+        try:
+            print("\nListening...")
+            audio = recognizer.listen(source, timeout=5, phrase_time_limit=4)
+
+            command = recognizer.recognize_google(audio)
+            print("You said:", command)
+
+            trigger_action(command)
+
+        except sr.WaitTimeoutError:
+            print("Listening timed out. Try speaking again.")
+
+        except sr.UnknownValueError:
+            print("Sorry, I could not understand.")
+
+        except sr.RequestError:
+            print("Google Speech API unavailable.")
+
+GPIO.cleanup()
